@@ -115,11 +115,14 @@ public class Player : MonoBehaviour
     private void UpdateTargetPosition()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        // Définissez ici le nom du layer du sol
+        int layerMask = LayerMask.GetMask("Ground");
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
         {
             targetPosition = new Vector3(hit.point.x, transform.position.y, hit.point.z);
         }
     }
+
 
     private void MoveAndRotatePlayer()
     {

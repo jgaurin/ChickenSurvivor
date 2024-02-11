@@ -1,40 +1,41 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class RocketLauncher : MonoBehaviour
 {
-    public GameObject rocketPrefab; // Assignez votre prefab de roquette ici dans l'inspecteur
-    public Transform launchPoint; // Point d'instanciation de la roquette
-    public Transform player; // Référence à l'objet joueur
-    public float rotationSpeed = 15f; // Vitesse de rotation vers la cible
-    public float launchThreshold = 0.99f; // Seuil pour déterminer si l'orientation est suffisamment proche
-    public float amplitude = 0.2f; // Amplitude du mouvement de haut en bas
-    public float frequency = 1f; // Vitesse du mouvement de haut en bas
+    public GameObject rocketPrefab;
+    public Transform launchPoint;
+    public Transform player;
+    public float rotationSpeed = 15f;
+    public float launchThreshold = 0.99f;
+    public float amplitude = 0.2f;
+    public float frequency = 1f;
+    public float launchInterval = 1f; // Intervalle de temps entre les lancements de roquettes
 
-    private Transform target; // Cible actuellement visée
-    private bool isRocketLaunched; // Pour s'assurer qu'une roquette est lancée une seule fois par détection
-    private Vector3 offset; // Décalage entre le joueur et le lance-roquettes
-    private Vector3 baseHeight; // Pour stocker la hauteur de base lors du flottement
-
+    public List<Transform> enemies = new List<Transform>();
+    private Transform target;
+    private Vector3 offset;
+    private Vector3 baseHeight;
+    private Coroutine launchCoroutine; // Référence à la coroutine de lancement
 
     void Start()
     {
         if (player != null)
         {
             offset = transform.position - player.position;
-            baseHeight = transform.position; // Initialise la hauteur de base pour l'effet de flottement
+            baseHeight = transform.position;
         }
     }
 
     void Update()
     {
-        if (target != null && !isRocketLaunched)
+        UpdateTarget();
+
+        if (target != null && launchCoroutine == null)
         {
-            if (RotateTowardsTarget())
-            {
-                // Si la rotation est suffisamment proche de la cible, lance la roquette
-                LaunchRocket();
-                isRocketLaunched = true; // Empêche le lancement de multiples roquettes
-            }
+            // Démarrer la coroutine pour lancer les roquettes à intervalles réguliers
+            launchCoroutine = StartCoroutine(LaunchRocketRepeatedly());
         }
     }
 
@@ -42,22 +43,99 @@ public class RocketLauncher : MonoBehaviour
     {
         if (player != null)
         {
-            // Calcul de la nouvelle position avec le décalage
+            if(target != null)
+            {
+                RotateTowardsTarget();
+            }
             Vector3 newPos = player.position + offset;
-
-            // Application de l'effet de flottement uniquement sur l'axe Y
             newPos.y += Mathf.Sin(Time.time * Mathf.PI * frequency) * amplitude;
-
             transform.position = newPos;
         }
     }
 
     void OnTriggerEnter(Collider other)
     {
+        if (other.gameObject.CompareTag("Enemy") && !enemies.Contains(other.transform))
+        {
+            enemies.Add(other.transform);
+            if (target == null)
+            {
+                target = enemies[0];
+            }
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
         if (other.gameObject.CompareTag("Enemy"))
         {
-            target = other.transform;
-            isRocketLaunched = false; // Réinitialise pour permettre un nouveau lancement
+            // Vérifie si l'ennemi sortant est dans la liste et le retire
+            if (enemies.Contains(other.transform))
+            {
+                enemies.Remove(other.transform);
+
+                // Si l'ennemi sortant était la cible actuelle, mettez à jour la cible
+                if (target == other.transform)
+                {
+                    UpdateTargetImmediately();
+                }
+            }
+        }
+    }
+
+    void UpdateTargetImmediately()
+    {
+        // Nettoyez d'abord les références nulles
+        enemies.RemoveAll(enemy => enemy == null);
+
+        if (enemies.Count > 0)
+        {
+            // Mettez à jour la cible avec le premier ennemi disponible dans la liste
+            target = enemies[0];
+        }
+        else
+        {
+            // Arrêtez la coroutine de lancement si plus aucun ennemi n'est présent et réinitialisez la cible
+            target = null;
+            if (launchCoroutine != null)
+            {
+                StopCoroutine(launchCoroutine);
+                launchCoroutine = null;
+            }
+        }
+    }
+
+
+    void UpdateTarget()
+    {
+        if (target == null || target.gameObject == null)
+        {
+            if (enemies.Count > 0)
+            {
+                enemies.RemoveAll(enemy => enemy == null);
+                if (enemies.Count > 0)
+                {
+                    target = enemies[0];
+                }
+                else
+                {
+                    // Arrêter la coroutine si plus aucun ennemi n'est présent
+                    if (launchCoroutine != null)
+                    {
+                        StopCoroutine(launchCoroutine);
+                        launchCoroutine = null;
+                    }
+                }
+            }
+        }
+    }
+
+    IEnumerator LaunchRocketRepeatedly()
+    {
+        while (target != null)
+        {
+            LaunchRocket();
+            yield return new WaitForSeconds(launchInterval); // Attend l'intervalle spécifié avant de relancer
         }
     }
 
