@@ -99,7 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   speed: 10
-  damage: 2
+  damage: 10
   effectPoufPrefab: {fileID: 725748389856807714, guid: 4bda94453d2ca7444a0fff05b2d425f5, type: 3}
 --- !u!65 &6295252046681042416
 BoxCollider:
