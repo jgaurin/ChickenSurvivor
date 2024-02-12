@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Player : MonoBehaviour
 {
@@ -20,16 +21,20 @@ public class Player : MonoBehaviour
     public int Health = 100;
     private int maxHealth = 100;
 
+    public ExpBar expBar;
+
     public int currentExp = 0;
     public int expToNextLevel = 100;
     public int currentLevel = 1;
+
+    public TextMeshProUGUI levelText;
 
 
     private void Start()
     {
         targetPosition = transform.position;
         animator = GetComponent<Animator>();
-
+        expBar.SetExp(currentExp, expToNextLevel); 
     }
 
     void Update()
@@ -182,6 +187,7 @@ public class Player : MonoBehaviour
     public void GainExp(int exp)
     {
         currentExp += exp;
+        expBar.SetExp(currentExp, expToNextLevel); // Mettez à jour la barre d'EXP
         if (currentExp >= expToNextLevel)
         {
             LevelUp();
@@ -196,7 +202,10 @@ public class Player : MonoBehaviour
         // Ici, vous pouvez augmenter la santé, la vitesse, etc.
         maxHealth += 20; // Exemple : Augmenter la santé maximale
         Health = maxHealth; // Restaure la santé à son maximum
-        // Mettez à jour la barre de santé ou d'autres UI si nécessaire
+                            // Mettez à jour la barre de santé ou d'autres UI si nécessaire
+        expBar.SetExp(currentExp, expToNextLevel); // Mettez à jour la barre d'EXP pour le nouveau niveau
+        levelText.text = currentLevel.ToString();
+
     }
 
     private void OnTriggerExit(Collider other)
