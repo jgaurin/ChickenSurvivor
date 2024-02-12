@@ -17,6 +17,9 @@ public class Chicken : MonoBehaviour
     private NavMeshAgent agent; // Ajout du NavMeshAgent
     private Rigidbody rb;
 
+    public GameObject exp;
+
+
     void Start()
     {
         animator = GetComponent<Animator>(); // Récupérer le composant Animator
@@ -97,6 +100,9 @@ public class Chicken : MonoBehaviour
         health -= damage;
         if (health <= 0)
         {
+            Vector3 spawnPosition = gameObject.transform.position; // Position de l'ennemi
+            Quaternion spawnRotation = Quaternion.identity; // Rotation par défaut
+            Instantiate(exp, spawnPosition, spawnRotation);
             Death();
         }
         return health;

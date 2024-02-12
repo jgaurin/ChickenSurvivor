@@ -152,6 +152,7 @@ MonoBehaviour:
   player: {fileID: 0}
   stopDistance: 0.8
   health: 5
+  exp: {fileID: 270653601040089847, guid: 6d83b62a23d330b44a15845705d4d328, type: 3}
 --- !u!54 &-3250484633302548757
 Rigidbody:
   m_ObjectHideFlags: 0

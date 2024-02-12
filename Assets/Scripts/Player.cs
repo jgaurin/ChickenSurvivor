@@ -20,6 +20,10 @@ public class Player : MonoBehaviour
     public int Health = 100;
     private int maxHealth = 100;
 
+    public int currentExp = 0;
+    public int expToNextLevel = 100;
+    public int currentLevel = 1;
+
 
     private void Start()
     {
@@ -30,6 +34,8 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+
+        print(currentExp + " " + currentLevel);
         HandleInput();
         if (isMoving)
         {
@@ -70,7 +76,6 @@ public class Player : MonoBehaviour
 
     private void DestroyEnemyAfterDelay(GameObject enemy)
     {
-        print("attack");
         if (enemy != null && enemiesInRange.Contains(enemy))
         {
             Vector3 spawnPosition = enemy.transform.position; // Position de l'ennemi
@@ -164,8 +169,35 @@ public class Player : MonoBehaviour
             animator.SetBool("isAttack", true);
             UpdateCurrentEnemy();
         }
+        else if (other.CompareTag("Exp")) // Si l'objet a le tag "Exp"
+        {
+            ExpOrb expOrb = other.GetComponent<ExpOrb>();
+            if (expOrb != null)
+            {
+                expOrb.StartMovingTowardsPlayer(transform); // Demande à l'orbe de commencer à se déplacer vers le joueur
+            }
+        }
     }
 
+    public void GainExp(int exp)
+    {
+        currentExp += exp;
+        if (currentExp >= expToNextLevel)
+        {
+            LevelUp();
+        }
+    }
+
+    void LevelUp()
+    {
+        currentExp -= expToNextLevel; // Retire l'XP nécessaire pour le niveau actuel
+        currentLevel++; // Augmente le niveau
+        expToNextLevel += 100; // Augmente l'XP nécessaire pour le prochain niveau
+        // Ici, vous pouvez augmenter la santé, la vitesse, etc.
+        maxHealth += 20; // Exemple : Augmenter la santé maximale
+        Health = maxHealth; // Restaure la santé à son maximum
+        // Mettez à jour la barre de santé ou d'autres UI si nécessaire
+    }
 
     private void OnTriggerExit(Collider other)
     {
