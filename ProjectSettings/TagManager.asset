@@ -8,6 +8,7 @@ TagManager:
   - FxTemporaire
   - Coin
   - Exp
+  - SpawnBrochette
   layers:
   - Default
   - TransparentFX

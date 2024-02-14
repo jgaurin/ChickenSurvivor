@@ -14,7 +14,7 @@ public class BombExplosion : MonoBehaviour
 
             // Calcule la distance entre la bombe et le joueur.
             float distanceToPlayer = Vector3.Distance(playerTransform.position, transform.position);
-            print(distanceToPlayer);
+
             // Vérifie si le joueur est à une distance inférieure ou égale à 0.1 unité.
             if (distanceToPlayer <= 1f)
             {

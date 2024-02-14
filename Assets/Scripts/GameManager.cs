@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour
 
     private int currentWave = 0;
 
+    public GameObject popUpCapacity;
+
     void Start()
     {
         StartCoroutine(SpawnWaves());
@@ -58,4 +60,23 @@ public class GameManager : MonoBehaviour
         Vector3 spawnPosition = spawnPoints[pointIndex].position;
         Instantiate(bossPrefab, spawnPosition, Quaternion.identity); // Générez le boss
     }
+
+    public void ActivatePopUpCapacity()
+    {
+        if (popUpCapacity != null)
+        {
+            popUpCapacity.SetActive(true);
+            Time.timeScale = 0; 
+        }
+    }
+
+    public void DeactivatePopUpCapacity()
+    {
+        if (popUpCapacity != null)
+        {
+            popUpCapacity.SetActive(false);
+            Time.timeScale = 1;
+        }
+    }
+
 }

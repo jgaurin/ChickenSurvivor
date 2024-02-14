@@ -28,6 +28,8 @@ public class Player : MonoBehaviour
     public int currentLevel = 1;
 
     public TextMeshProUGUI levelText;
+    public GameManager gameManager;
+    public GameObject brochettePrefab;
 
 
     private void Start()
@@ -182,6 +184,13 @@ public class Player : MonoBehaviour
                 expOrb.StartMovingTowardsPlayer(transform); // Demande à l'orbe de commencer à se déplacer vers le joueur
             }
         }
+        else if(other.CompareTag("SpawnBrochette"))
+        {
+            Vector3 spawnPosition = other.transform.position;
+            Destroy(other.gameObject);
+            Instantiate(brochettePrefab, spawnPosition, Quaternion.identity); // Instanciez le prefab
+
+        }
     }
 
     public void GainExp(int exp)
@@ -196,6 +205,7 @@ public class Player : MonoBehaviour
 
     void LevelUp()
     {
+        gameManager.ActivatePopUpCapacity();
         currentExp -= expToNextLevel; // Retire l'XP nécessaire pour le niveau actuel
         currentLevel++; // Augmente le niveau
         expToNextLevel += 100; // Augmente l'XP nécessaire pour le prochain niveau
@@ -207,6 +217,17 @@ public class Player : MonoBehaviour
         levelText.text = currentLevel.ToString();
 
     }
+
+    public void RecoverHealth(int amount)
+    {
+        Health += amount;
+        if (Health > maxHealth) // Assure que la santé ne dépasse pas la santé maximale.
+        {
+            Health = maxHealth;
+        }
+        healthBar.SetHealth(Health, maxHealth); // Met à jour la barre de santé avec la nouvelle valeur.
+    }
+
 
     private void OnTriggerExit(Collider other)
     {
